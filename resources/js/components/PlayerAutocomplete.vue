@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Player } from '@/types';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 
 const props = defineProps<{
     excludeIds?: number[];
@@ -11,11 +11,14 @@ const emit = defineEmits<{
     select: [player: Player];
 }>();
 
+const inputRef = useTemplateRef<HTMLInputElement>('input');
+
 const query = ref('');
 const results = ref<Player[]>([]);
 const loading = ref(false);
 const open = ref(false);
 let debounceId: ReturnType<typeof setTimeout> | undefined;
+let blurId: ReturnType<typeof setTimeout> | undefined;
 
 const exclude = computed(() => new Set(props.excludeIds ?? []));
 
@@ -34,8 +37,19 @@ const fetchResults = async (q: string) => {
     }
 };
 
-watch(query, (q) => {
+const onFocus = () => {
+    if (blurId) clearTimeout(blurId);
     open.value = true;
+    fetchResults(query.value);
+};
+
+const onBlur = () => {
+    blurId = setTimeout(() => {
+        open.value = false;
+    }, 150);
+};
+
+watch(query, (q) => {
     if (debounceId) clearTimeout(debounceId);
     debounceId = setTimeout(() => fetchResults(q), 150);
 });
@@ -51,6 +65,7 @@ const pickPlayer = (player: Player) => {
     query.value = '';
     results.value = [];
     open.value = false;
+    inputRef.value?.blur();
 };
 
 const createNew = async () => {
@@ -80,13 +95,16 @@ const createNew = async () => {
             type="text"
             :placeholder="placeholder ?? 'Add player...'"
             class="w-full border-2 border-border bg-background px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
-            @focus="open = true"
+            ref="input"
+            @focus="onFocus"
+            @blur="onBlur"
             @keydown.enter.prevent="canCreate && createNew()"
         />
 
         <div
             v-if="open && (filtered.length || canCreate || loading)"
             class="absolute z-10 mt-1 w-full border-2 border-border bg-card"
+            @mousedown.prevent
         >
             <button
                 v-for="p in filtered"
