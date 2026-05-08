@@ -106,6 +106,22 @@ class TournamentController extends Controller
         ]);
     }
 
+    public function addPlayers(Tournament $tournament, Request $request): RedirectResponse
+    {
+        if ($tournament->status !== TournamentStatus::Active) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'player_ids' => ['required', 'array', 'min:1'],
+            'player_ids.*' => ['integer', 'exists:players,id'],
+        ]);
+
+        $tournament->players()->syncWithoutDetaching($data['player_ids']);
+
+        return back();
+    }
+
     public function end(Tournament $tournament, FinalizeTournament $finalize): RedirectResponse
     {
         $finalize($tournament);

@@ -19,6 +19,7 @@ Route::middleware('passcode')->group(function (): void {
     Route::post('/tournaments', [TournamentController::class, 'store'])->name('tournaments.store');
     Route::get('/tournaments/{tournament}', [TournamentController::class, 'show'])->name('tournaments.show');
     Route::post('/tournaments/{tournament}/end', [TournamentController::class, 'end'])->name('tournaments.end');
+    Route::post('/tournaments/{tournament}/players', [TournamentController::class, 'addPlayers'])->name('tournaments.addPlayers');
     Route::get('/tournaments/{tournament}/results', [TournamentController::class, 'results'])->name('tournaments.results');
 
     Route::post('/tournaments/{tournament}/matches', [MatchController::class, 'store'])->name('matches.store');

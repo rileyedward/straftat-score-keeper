@@ -2,11 +2,12 @@
 import AddMatchWizard from '@/components/AddMatchWizard.vue';
 import LeaderboardCard from '@/components/LeaderboardCard.vue';
 import MatchListItem from '@/components/MatchListItem.vue';
+import PlayerAutocomplete from '@/components/PlayerAutocomplete.vue';
 import PlayerAvatar from '@/components/PlayerAvatar.vue';
 import AppShell from '@/layouts/AppShell.vue';
-import type { LeaderboardRow, MatchRecord, Player, Tournament } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import type { LeaderboardRow, MatchMode, MatchRecord, Player, Tournament } from '@/types';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     tournament: Tournament;
@@ -39,6 +40,46 @@ const endTournament = () => {
 };
 
 const isActive = props.tournament.status === 'active';
+
+const addingPlayers = ref(false);
+const pendingPlayers = ref<Player[]>([]);
+const addPlayerForm = useForm({ player_ids: [] as number[] });
+
+const rosterIds = computed(() => props.roster.map((p) => p.id));
+const excludeIds = computed(() => [...rosterIds.value, ...pendingPlayers.value.map((p) => p.id)]);
+
+const queuePlayer = (player: Player) => {
+    if (pendingPlayers.value.find((p) => p.id === player.id)) return;
+    pendingPlayers.value.push(player);
+    addPlayerForm.player_ids = pendingPlayers.value.map((p) => p.id);
+};
+
+const removePending = (id: number) => {
+    pendingPlayers.value = pendingPlayers.value.filter((p) => p.id !== id);
+    addPlayerForm.player_ids = pendingPlayers.value.map((p) => p.id);
+};
+
+const submitAddPlayers = () => {
+    addPlayerForm.post(`/tournaments/${props.tournament.id}/players`, {
+        onSuccess: () => {
+            addingPlayers.value = false;
+            pendingPlayers.value = [];
+            addPlayerForm.reset();
+        },
+    });
+};
+
+type MatchFilter = 'all' | MatchMode;
+const matchFilter = ref<MatchFilter>('all');
+const matchFilters: Array<{ key: MatchFilter; label: string }> = [
+    { key: 'all', label: 'All' },
+    { key: '1v1', label: '1v1' },
+    { key: '2v2', label: '2v2' },
+    { key: 'ffa', label: 'FFA' },
+];
+const filteredMatches = computed(() =>
+    matchFilter.value === 'all' ? props.matches : props.matches.filter((m) => m.mode === matchFilter.value),
+);
 </script>
 
 <template>
@@ -79,12 +120,33 @@ const isActive = props.tournament.status === 'active';
 
             <div class="grid gap-6 lg:grid-cols-[2fr_1fr]">
                 <div class="space-y-3">
-                    <h2 class="text-sm font-bold uppercase tracking-widest text-muted-foreground">Match Log</h2>
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold uppercase tracking-widest text-muted-foreground">Match Log</h2>
+                        <div class="flex gap-2">
+                            <button
+                                v-for="f in matchFilters"
+                                :key="f.key"
+                                type="button"
+                                :class="[
+                                    'border-2 px-2 py-1 text-xs uppercase tracking-wider transition-colors',
+                                    matchFilter === f.key
+                                        ? 'border-primary bg-primary text-primary-foreground'
+                                        : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
+                                ]"
+                                @click="matchFilter = f.key"
+                            >
+                                {{ f.label }}
+                            </button>
+                        </div>
+                    </div>
                     <div v-if="!matches.length" class="border-2 border-border bg-card p-6 text-center text-sm text-muted-foreground">
                         No matches yet. Hit "Add Match" to record the first one.
                     </div>
+                    <div v-else-if="!filteredMatches.length" class="border-2 border-border bg-card p-6 text-center text-sm text-muted-foreground">
+                        No {{ matchFilter }} matches recorded yet.
+                    </div>
                     <MatchListItem
-                        v-for="match in matches"
+                        v-for="match in filteredMatches"
                         :key="match.id"
                         :match="match"
                         :can-edit="isActive"
@@ -93,8 +155,19 @@ const isActive = props.tournament.status === 'active';
                 </div>
 
                 <aside class="space-y-3">
-                    <h2 class="text-sm font-bold uppercase tracking-widest text-muted-foreground">Roster</h2>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold uppercase tracking-widest text-muted-foreground">Roster</h2>
+                        <button
+                            v-if="isActive"
+                            type="button"
+                            class="border-2 border-border px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+                            @click="addingPlayers = !addingPlayers"
+                        >
+                            {{ addingPlayers ? 'Cancel' : '+ Add' }}
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
                         <a
                             v-for="p in roster"
                             :key="p.id"
@@ -104,6 +177,37 @@ const isActive = props.tournament.status === 'active';
                             <PlayerAvatar :player="p" size="sm" />
                             <span class="truncate text-sm">{{ p.name }}</span>
                         </a>
+                    </div>
+
+                    <div v-if="addingPlayers" class="space-y-2 border-2 border-border bg-card p-3">
+                        <PlayerAutocomplete :exclude-ids="excludeIds" placeholder="Type a name..." @select="queuePlayer" />
+                        <div v-if="pendingPlayers.length" class="flex flex-col gap-1">
+                            <div
+                                v-for="p in pendingPlayers"
+                                :key="p.id"
+                                class="flex items-center justify-between border border-border px-2 py-1"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <PlayerAvatar :player="p" size="sm" />
+                                    <span class="text-sm">{{ p.name }}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="text-xs text-muted-foreground hover:text-destructive"
+                                    @click="removePending(p.id)"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            :disabled="!pendingPlayers.length || addPlayerForm.processing"
+                            class="w-full border-2 border-primary bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
+                            @click="submitAddPlayers"
+                        >
+                            Add {{ pendingPlayers.length || '' }} Player{{ pendingPlayers.length === 1 ? '' : 's' }}
+                        </button>
                     </div>
                 </aside>
             </div>
