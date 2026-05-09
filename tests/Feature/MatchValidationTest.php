@@ -9,7 +9,7 @@ beforeEach(function () {
     $this->players = Player::factory()->count(4)->create();
     $this->tournament = Tournament::factory()->create();
     $this->tournament->players()->attach($this->players->pluck('id'));
-    $this->action = new RecordMatch();
+    $this->action = new RecordMatch;
 });
 
 it('rejects 1v1 without exactly one player at 4 rounds', function () {

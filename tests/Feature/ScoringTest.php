@@ -1,7 +1,6 @@
 <?php
 
 use App\Actions\ComputeTournamentLeaderboard;
-use App\Enums\MatchMode;
 use App\Models\GameMatch;
 use App\Models\MatchParticipant;
 use App\Models\Player;
@@ -58,7 +57,7 @@ it('scores 1v1 standard win as 3-0', function () {
     $t = buildTournamentWith([$a, $b]);
     recordOneVOne($t, $a, $b, 4, 1);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
     $aRow = $rows->firstWhere('player_id', $a->id);
     $bRow = $rows->firstWhere('player_id', $b->id);
 
@@ -74,7 +73,7 @@ it('scores 1v1 close win (4-3) as 2-1', function () {
     $t = buildTournamentWith([$a, $b]);
     recordOneVOne($t, $a, $b, 4, 3);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
     $aRow = $rows->firstWhere('player_id', $a->id);
     $bRow = $rows->firstWhere('player_id', $b->id);
 
@@ -89,7 +88,7 @@ it('scores 2v2 standard win with 3 to each winner, 0 to each loser', function ()
     $t = buildTournamentWith([$a, $b, $c, $d]);
     recordTwoVTwo($t, [$a, $b], [$c, $d], 4, 2);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
 
     expect($rows->firstWhere('player_id', $a->id)['points'])->toBe(3)
         ->and($rows->firstWhere('player_id', $b->id)['points'])->toBe(3)
@@ -102,7 +101,7 @@ it('scores 2v2 close win (4-3) as 2 each winner, 1 each loser', function () {
     $t = buildTournamentWith([$a, $b, $c, $d]);
     recordTwoVTwo($t, [$a, $b], [$c, $d], 4, 3);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
 
     expect($rows->firstWhere('player_id', $a->id)['points'])->toBe(2)
         ->and($rows->firstWhere('player_id', $b->id)['points'])->toBe(2)
@@ -115,7 +114,7 @@ it('scores 4-player FFA by placement (3/2/1/0)', function () {
     $t = buildTournamentWith([$a, $b, $c, $d]);
     recordFfa($t, [$a, $b, $c, $d], [4, 3, 2, 1]);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
     expect($rows->firstWhere('player_id', $a->id)['points'])->toBe(3)
         ->and($rows->firstWhere('player_id', $b->id)['points'])->toBe(2)
         ->and($rows->firstWhere('player_id', $c->id)['points'])->toBe(1)
@@ -127,7 +126,7 @@ it('scores 3-player FFA by placement (2/1/0)', function () {
     $t = buildTournamentWith([$a, $b, $c]);
     recordFfa($t, [$a, $b, $c], [4, 2, 1]);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
     expect($rows->firstWhere('player_id', $a->id)['points'])->toBe(2)
         ->and($rows->firstWhere('player_id', $b->id)['points'])->toBe(1)
         ->and($rows->firstWhere('player_id', $c->id)['points'])->toBe(0);
@@ -143,7 +142,7 @@ it('scores FFA ties by falling to lower placement', function () {
     MatchParticipant::factory()->create(['match_id' => $match->id, 'player_id' => $c->id, 'placement' => 3, 'rounds_won' => 2]);
     MatchParticipant::factory()->create(['match_id' => $match->id, 'player_id' => $d->id, 'placement' => 4, 'rounds_won' => 0]);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
 
     expect($rows->firstWhere('player_id', $a->id)['points'])->toBe(3)
         ->and($rows->firstWhere('player_id', $b->id)['points'])->toBe(1)
@@ -156,6 +155,6 @@ it('orders leaderboard by points desc', function () {
     $t = buildTournamentWith([$a, $b]);
     recordOneVOne($t, $a, $b, 4, 0);
 
-    $rows = (new ComputeTournamentLeaderboard())($t);
+    $rows = (new ComputeTournamentLeaderboard)($t);
     expect($rows->first()['player_id'])->toBe($a->id);
 });

@@ -8,9 +8,7 @@ use Illuminate\Support\Collection;
 
 class ComputeAchievements
 {
-    public function __construct(private ComputeTournamentLeaderboard $leaderboard)
-    {
-    }
+    public function __construct(private ComputeTournamentLeaderboard $leaderboard) {}
 
     public function __invoke(Tournament $tournament): Collection
     {

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\MatchMode;
 use App\Models\GameMatch;
 use App\Models\MatchParticipant;
 use App\Models\Player;
