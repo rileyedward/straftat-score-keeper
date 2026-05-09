@@ -16,7 +16,7 @@ const logout = () => router.post('/logout');
                 </Link>
                 <button
                     type="button"
-                    class="border-2 border-border bg-transparent px-3 py-1 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-destructive hover:text-destructive"
+                    class="border-2 border-border bg-transparent px-3 py-1 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
                     @click="logout"
                 >
                     Logout
