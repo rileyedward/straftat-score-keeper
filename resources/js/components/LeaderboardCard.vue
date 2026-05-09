@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PlayerAvatar from '@/components/PlayerAvatar.vue';
+import ScoringInfoModal from '@/components/ScoringInfoModal.vue';
 import type { LeaderboardRow, MatchMode } from '@/types';
 import { computed, ref } from 'vue';
 
@@ -8,6 +9,7 @@ const props = defineProps<{
 }>();
 
 const filter = ref<'overall' | MatchMode>('overall');
+const showScoringInfo = ref(false);
 
 const sorted = computed(() => {
     if (filter.value === 'overall') {
@@ -42,7 +44,18 @@ const showWL = (row: LeaderboardRow) => {
 <template>
     <div class="border-2 border-border bg-card">
         <div class="flex items-center justify-between border-b-2 border-border p-4">
-            <h2 class="text-lg font-bold uppercase tracking-widest">Leaderboard</h2>
+            <div class="flex items-center gap-2">
+                <h2 class="text-lg font-bold uppercase tracking-widest">Leaderboard</h2>
+                <button
+                    type="button"
+                    title="How scoring works"
+                    aria-label="How scoring works"
+                    class="flex h-6 w-6 items-center justify-center border-2 border-border text-xs font-bold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                    @click="showScoringInfo = true"
+                >
+                    ?
+                </button>
+            </div>
             <div class="flex gap-2">
                 <button
                     v-for="f in filters"
@@ -92,5 +105,7 @@ const showWL = (row: LeaderboardRow) => {
                 </tr>
             </tbody>
         </table>
+
+        <ScoringInfoModal v-if="showScoringInfo" @close="showScoringInfo = false" />
     </div>
 </template>
