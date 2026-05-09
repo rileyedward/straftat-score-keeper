@@ -14,9 +14,9 @@ const sorted = computed(() => {
         return [...props.rows];
     }
     return [...props.rows].sort((a, b) => {
-        const aTotal = a.mode_breakdown[filter.value as MatchMode].mp + a.mode_breakdown[filter.value as MatchMode].rp;
-        const bTotal = b.mode_breakdown[filter.value as MatchMode].mp + b.mode_breakdown[filter.value as MatchMode].rp;
-        return bTotal - aTotal;
+        const ap = a.mode_breakdown[filter.value as MatchMode].points;
+        const bp = b.mode_breakdown[filter.value as MatchMode].points;
+        return bp - ap;
     });
 });
 
@@ -27,10 +27,9 @@ const filters: Array<{ key: 'overall' | MatchMode; label: string }> = [
     { key: 'ffa', label: 'FFA' },
 ];
 
-const showTotal = (row: LeaderboardRow) => {
-    if (filter.value === 'overall') return row.total;
-    const m = row.mode_breakdown[filter.value as MatchMode];
-    return m.mp + m.rp;
+const showPoints = (row: LeaderboardRow) => {
+    if (filter.value === 'overall') return row.points;
+    return row.mode_breakdown[filter.value as MatchMode].points;
 };
 
 const showWL = (row: LeaderboardRow) => {
@@ -71,9 +70,7 @@ const showWL = (row: LeaderboardRow) => {
                 <tr class="border-b-2 border-border">
                     <th class="px-3 py-2 text-left">#</th>
                     <th class="px-3 py-2 text-left">Player</th>
-                    <th class="px-3 py-2 text-right">MP</th>
-                    <th class="px-3 py-2 text-right">RP</th>
-                    <th class="px-3 py-2 text-right">Total</th>
+                    <th class="px-3 py-2 text-right">Points</th>
                     <th class="px-3 py-2 text-right">W-L</th>
                 </tr>
             </thead>
@@ -90,9 +87,7 @@ const showWL = (row: LeaderboardRow) => {
                             <span class="font-medium">{{ row.name }}</span>
                         </a>
                     </td>
-                    <td class="px-3 py-2 text-right font-mono">{{ filter === 'overall' ? row.mp : row.mode_breakdown[filter as MatchMode].mp }}</td>
-                    <td class="px-3 py-2 text-right font-mono">{{ filter === 'overall' ? row.rp : row.mode_breakdown[filter as MatchMode].rp }}</td>
-                    <td class="px-3 py-2 text-right font-bold text-primary">{{ showTotal(row) }}</td>
+                    <td class="px-3 py-2 text-right font-bold text-primary">{{ showPoints(row) }}</td>
                     <td class="px-3 py-2 text-right font-mono text-muted-foreground">{{ showWL(row) }}</td>
                 </tr>
             </tbody>

@@ -19,16 +19,14 @@ class ComputeTournamentLeaderboard
             'player_id' => $player->id,
             'name' => $player->name,
             'image_url' => $player->image_url,
-            'mp' => 0,
-            'rp' => 0,
-            'total' => 0,
+            'points' => 0,
             'matches_played' => 0,
             'wins' => 0,
             'losses' => 0,
             'mode_breakdown' => [
-                '1v1' => ['mp' => 0, 'rp' => 0, 'wins' => 0, 'losses' => 0],
-                '2v2' => ['mp' => 0, 'rp' => 0, 'wins' => 0, 'losses' => 0],
-                'ffa' => ['mp' => 0, 'rp' => 0, 'wins' => 0, 'losses' => 0],
+                '1v1' => ['points' => 0, 'wins' => 0, 'losses' => 0],
+                '2v2' => ['points' => 0, 'wins' => 0, 'losses' => 0],
+                'ffa' => ['points' => 0, 'wins' => 0, 'losses' => 0],
             ],
         ]);
 
@@ -45,13 +43,8 @@ class ComputeTournamentLeaderboard
         }
 
         return $rows
-            ->map(function ($row) {
-                $row['total'] = $row['mp'] + $row['rp'];
-
-                return $row;
-            })
             ->values()
-            ->sortByDesc(fn ($r) => [$r['total'], $r['mp'], $r['rp']])
+            ->sortByDesc(fn ($r) => [$r['points'], $r['wins']])
             ->values();
     }
 
@@ -66,8 +59,10 @@ class ComputeTournamentLeaderboard
         $winner = $sorted[0];
         $loser = $sorted[1];
 
-        $this->bump($rows, $winner->player_id, mp: 10, rp: $winner->rounds_won, mode: '1v1', win: true);
-        $this->bump($rows, $loser->player_id, mp: 0, rp: $loser->rounds_won, mode: '1v1', win: false);
+        [$winPoints, $losePoints] = $this->headToHeadPoints((int) $winner->rounds_won, (int) $loser->rounds_won);
+
+        $this->bump($rows, $winner->player_id, points: $winPoints, mode: '1v1', win: true);
+        $this->bump($rows, $loser->player_id, points: $losePoints, mode: '1v1', win: false);
     }
 
     private function scoreTwoVTwo($match, Collection $rows): void
@@ -78,45 +73,57 @@ class ComputeTournamentLeaderboard
         $bRounds = (int) ($match->team_b_rounds ?? 0);
         $aWins = $aRounds > $bRounds;
 
+        [$winPoints, $losePoints] = $this->headToHeadPoints(max($aRounds, $bRounds), min($aRounds, $bRounds));
+
         foreach ($teamA as $p) {
-            $this->bump($rows, $p->player_id, mp: $aWins ? 13 : 0, rp: $aRounds, mode: '2v2', win: $aWins);
+            $this->bump($rows, $p->player_id, points: $aWins ? $winPoints : $losePoints, mode: '2v2', win: $aWins);
         }
         foreach ($teamB as $p) {
-            $this->bump($rows, $p->player_id, mp: $aWins ? 0 : 13, rp: $bRounds, mode: '2v2', win: ! $aWins);
+            $this->bump($rows, $p->player_id, points: $aWins ? $losePoints : $winPoints, mode: '2v2', win: ! $aWins);
         }
     }
 
     private function scoreFfa($match, Collection $rows): void
     {
         $count = $match->participants->count();
-        $points = $count === 4
-            ? [1 => 20, 2 => 15, 3 => 10, 4 => 5]
-            : [1 => 15, 2 => 10, 3 => 5];
 
         foreach ($match->participants as $p) {
-            $mp = $points[$p->placement] ?? 0;
-            $win = $p->placement === 1;
-            $this->bump($rows, $p->player_id, mp: $mp, rp: $p->rounds_won, mode: 'ffa', win: $win);
+            $placement = (int) $p->placement;
+            $points = max(0, $count - $placement);
+            $win = $placement === 1;
+            $this->bump($rows, $p->player_id, points: $points, mode: 'ffa', win: $win);
         }
     }
 
-    private function bump(Collection $rows, int $playerId, int $mp, int $rp, string $mode, bool $win): void
+    /**
+     * 4-3 close match: winner 2, loser 1. Otherwise 3 / 0.
+     *
+     * @return array{0: int, 1: int}
+     */
+    private function headToHeadPoints(int $winnerRounds, int $loserRounds): array
+    {
+        if ($winnerRounds === 4 && $loserRounds === 3) {
+            return [2, 1];
+        }
+
+        return [3, 0];
+    }
+
+    private function bump(Collection $rows, int $playerId, int $points, string $mode, bool $win): void
     {
         if (! $rows->has($playerId)) {
             return;
         }
 
         $row = $rows[$playerId];
-        $row['mp'] += $mp;
-        $row['rp'] += $rp;
+        $row['points'] += $points;
         $row['matches_played'] += 1;
         if ($win) {
             $row['wins'] += 1;
         } else {
             $row['losses'] += 1;
         }
-        $row['mode_breakdown'][$mode]['mp'] += $mp;
-        $row['mode_breakdown'][$mode]['rp'] += $rp;
+        $row['mode_breakdown'][$mode]['points'] += $points;
         if ($win) {
             $row['mode_breakdown'][$mode]['wins'] += 1;
         } else {

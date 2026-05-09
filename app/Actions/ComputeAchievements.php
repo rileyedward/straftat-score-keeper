@@ -179,7 +179,7 @@ class ComputeAchievements
         }
         $top = $leaderboard->first();
 
-        return collect([$this->award('mvp', 'MVP', 'Highest total session score', $top['player_id'], $top['name'], "{$top['total']} pts")]);
+        return collect([$this->award('mvp', 'MVP', 'Highest total session score', $top['player_id'], $top['name'], "{$top['points']} pts")]);
     }
 
     private function matchResults($m): array

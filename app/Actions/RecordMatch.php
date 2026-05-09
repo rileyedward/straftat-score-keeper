@@ -64,8 +64,8 @@ class RecordMatch
     }
 
     /**
-     * Derive FFA placements from rounds_won using standard competition ranking (1224).
-     * Tied rounds_won share placement; the next distinct value's place skips by tie count.
+     * Derive FFA placements from rounds_won using modified competition ranking (1334).
+     * Tied players share the lower placement; the higher placement is skipped.
      */
     private function derivePlacements(array $payload): array
     {
@@ -73,24 +73,13 @@ class RecordMatch
             return $payload;
         }
 
-        $sorted = collect($payload['participants'])
-            ->map(fn ($p, $i) => array_merge($p, ['_idx' => $i]))
-            ->sortByDesc(fn ($p) => (int) ($p['rounds_won'] ?? 0))
-            ->values();
-
-        $byOriginalIdx = [];
-        $prevRounds = null;
-        $prevPlace = 0;
-        foreach ($sorted as $position => $p) {
-            $rounds = (int) ($p['rounds_won'] ?? 0);
-            $place = $rounds === $prevRounds ? $prevPlace : ($position + 1);
-            $byOriginalIdx[$p['_idx']] = $place;
-            $prevRounds = $rounds;
-            $prevPlace = $place;
-        }
+        $allRounds = collect($payload['participants'])->map(fn ($p) => (int) ($p['rounds_won'] ?? 0));
 
         foreach ($payload['participants'] as $i => &$p) {
-            $p['placement'] = $byOriginalIdx[$i];
+            $myRounds = (int) ($p['rounds_won'] ?? 0);
+            $strictlyAbove = $allRounds->filter(fn ($r) => $r > $myRounds)->count();
+            $tiedWith = $allRounds->filter(fn ($r) => $r === $myRounds)->count() - 1;
+            $p['placement'] = $strictlyAbove + $tiedWith + 1;
         }
 
         return $payload;

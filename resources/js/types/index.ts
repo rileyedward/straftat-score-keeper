@@ -36,8 +36,7 @@ export interface Tournament {
 }
 
 export interface ModeBreakdown {
-    mp: number;
-    rp: number;
+    points: number;
     wins: number;
     losses: number;
 }
@@ -46,9 +45,7 @@ export interface LeaderboardRow {
     player_id: number;
     name: string;
     image_url: string | null;
-    mp: number;
-    rp: number;
-    total: number;
+    points: number;
     matches_played: number;
     wins: number;
     losses: number;

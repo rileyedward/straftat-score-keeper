@@ -37,7 +37,7 @@ const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString(
                 </div>
                 <div class="text-3xl font-bold uppercase tracking-widest">{{ champion.name }}</div>
                 <div class="mt-1 font-mono text-sm text-muted-foreground">
-                    {{ champion.total }} pts · {{ champion.wins }}-{{ champion.losses }}
+                    {{ champion.points }} pts · {{ champion.wins }}-{{ champion.losses }}
                 </div>
             </section>
 

@@ -105,7 +105,7 @@ it('derives FFA placements from rounds_won (no ties)', function () {
         ->and($byPlayer[$this->players[0]->id]->placement)->toBe(4);
 });
 
-it('derives FFA placements with tied middle places', function () {
+it('derives FFA placements with tied middle places (ties fall down)', function () {
     $match = $this->action->create($this->tournament, [
         'mode' => 'ffa',
         'participants' => [
@@ -118,8 +118,8 @@ it('derives FFA placements with tied middle places', function () {
 
     $byPlayer = $match->participants->keyBy('player_id');
     expect($byPlayer[$this->players[0]->id]->placement)->toBe(1)
-        ->and($byPlayer[$this->players[1]->id]->placement)->toBe(2)
-        ->and($byPlayer[$this->players[2]->id]->placement)->toBe(2)
+        ->and($byPlayer[$this->players[1]->id]->placement)->toBe(3)
+        ->and($byPlayer[$this->players[2]->id]->placement)->toBe(3)
         ->and($byPlayer[$this->players[3]->id]->placement)->toBe(4);
 });
 
