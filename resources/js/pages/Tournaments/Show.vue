@@ -110,7 +110,7 @@ const filteredMatches = computed(() =>
                     </button>
                     <button
                         type="button"
-                        class="border-2 border-destructive bg-transparent px-4 py-2 text-xs font-bold uppercase tracking-widest text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
+                        class="border-2 border-primary bg-transparent px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
                         @click="endTournament"
                     >
                         End Tournament
