@@ -14,10 +14,14 @@ defineProps<{
     <AppShell>
         <div class="mx-auto max-w-2xl space-y-6 p-8">
             <header class="border-b-2 border-border pb-4">
-                <h1 class="text-4xl font-bold uppercase tracking-widest text-foreground">
+                <h1
+                    class="text-4xl font-bold tracking-widest text-foreground uppercase"
+                >
                     Game Night
                 </h1>
-                <p class="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
+                <p
+                    class="mt-1 text-xs tracking-wider text-muted-foreground uppercase"
+                >
                     Pick your destiny
                 </p>
             </header>
@@ -28,10 +32,12 @@ defineProps<{
                     :href="`/tournaments/${activeTournament.id}`"
                     class="block border-2 border-primary bg-primary p-6 transition-colors hover:bg-background hover:text-primary"
                 >
-                    <div class="text-xs uppercase tracking-wider opacity-80">
+                    <div class="text-xs tracking-wider uppercase opacity-80">
                         Resume
                     </div>
-                    <div class="mt-2 text-2xl font-bold uppercase tracking-wide">
+                    <div
+                        class="mt-2 text-2xl font-bold tracking-wide uppercase"
+                    >
                         {{ activeTournament.name }}
                     </div>
                 </Link>
@@ -40,10 +46,12 @@ defineProps<{
                     href="/tournaments/create"
                     class="block border-2 border-primary bg-primary p-6 text-primary-foreground transition-colors hover:bg-background hover:text-primary"
                 >
-                    <div class="text-xs uppercase tracking-wider opacity-80">
+                    <div class="text-xs tracking-wider uppercase opacity-80">
                         Start
                     </div>
-                    <div class="mt-2 text-2xl font-bold uppercase tracking-wide">
+                    <div
+                        class="mt-2 text-2xl font-bold tracking-wide uppercase"
+                    >
                         New Tournament
                     </div>
                 </Link>
@@ -52,10 +60,14 @@ defineProps<{
                     href="/tournaments"
                     class="block border-2 border-border bg-card p-6 text-foreground transition-colors hover:border-accent hover:text-accent"
                 >
-                    <div class="text-xs uppercase tracking-wider text-muted-foreground">
+                    <div
+                        class="text-xs tracking-wider text-muted-foreground uppercase"
+                    >
                         Archive
                     </div>
-                    <div class="mt-2 text-2xl font-bold uppercase tracking-wide">
+                    <div
+                        class="mt-2 text-2xl font-bold tracking-wide uppercase"
+                    >
                         History ({{ pastTournamentsCount }})
                     </div>
                 </Link>

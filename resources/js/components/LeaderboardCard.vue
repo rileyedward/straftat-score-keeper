@@ -43,9 +43,13 @@ const showWL = (row: LeaderboardRow) => {
 
 <template>
     <div class="border-2 border-border bg-card">
-        <div class="flex items-center justify-between border-b-2 border-border p-4">
+        <div
+            class="flex items-center justify-between border-b-2 border-border p-4"
+        >
             <div class="flex items-center gap-2">
-                <h2 class="text-lg font-bold uppercase tracking-widest">Leaderboard</h2>
+                <h2 class="text-lg font-bold tracking-widest uppercase">
+                    Leaderboard
+                </h2>
                 <button
                     type="button"
                     title="How scoring works"
@@ -62,7 +66,7 @@ const showWL = (row: LeaderboardRow) => {
                     :key="f.key"
                     type="button"
                     :class="[
-                        'border-2 px-2 py-1 text-xs uppercase tracking-wider transition-colors',
+                        'border-2 px-2 py-1 text-xs tracking-wider uppercase transition-colors',
                         filter === f.key
                             ? 'border-primary bg-primary text-primary-foreground'
                             : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
@@ -74,12 +78,17 @@ const showWL = (row: LeaderboardRow) => {
             </div>
         </div>
 
-        <div v-if="sorted.length === 0" class="p-6 text-center text-sm text-muted-foreground">
+        <div
+            v-if="sorted.length === 0"
+            class="p-6 text-center text-sm text-muted-foreground"
+        >
             No matches yet. Record one to start the leaderboard.
         </div>
 
         <table v-else class="w-full">
-            <thead class="text-xs uppercase tracking-wider text-muted-foreground">
+            <thead
+                class="text-xs tracking-wider text-muted-foreground uppercase"
+            >
                 <tr class="border-b-2 border-border">
                     <th class="px-3 py-2 text-left">#</th>
                     <th class="px-3 py-2 text-left">Player</th>
@@ -95,17 +104,29 @@ const showWL = (row: LeaderboardRow) => {
                 >
                     <td class="px-3 py-2 font-bold">{{ idx + 1 }}</td>
                     <td class="px-3 py-2">
-                        <a :href="`/players/${row.player_id}`" class="flex items-center gap-2 hover:text-accent">
+                        <a
+                            :href="`/players/${row.player_id}`"
+                            class="flex items-center gap-2 hover:text-accent"
+                        >
                             <PlayerAvatar :player="row" size="sm" />
                             <span class="font-medium">{{ row.name }}</span>
                         </a>
                     </td>
-                    <td class="px-3 py-2 text-right font-bold text-primary">{{ showPoints(row) }}</td>
-                    <td class="px-3 py-2 text-right font-mono text-muted-foreground">{{ showWL(row) }}</td>
+                    <td class="px-3 py-2 text-right font-bold text-primary">
+                        {{ showPoints(row) }}
+                    </td>
+                    <td
+                        class="px-3 py-2 text-right font-mono text-muted-foreground"
+                    >
+                        {{ showWL(row) }}
+                    </td>
                 </tr>
             </tbody>
         </table>
 
-        <ScoringInfoModal v-if="showScoringInfo" @close="showScoringInfo = false" />
+        <ScoringInfoModal
+            v-if="showScoringInfo"
+            @close="showScoringInfo = false"
+        />
     </div>
 </template>

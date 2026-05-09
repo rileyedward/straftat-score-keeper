@@ -14,7 +14,9 @@ const emit = defineEmits<{
 
 const summary = computed(() => {
     if (props.match.mode === '1v1') {
-        const sorted = [...props.match.participants].sort((a, b) => b.rounds_won - a.rounds_won);
+        const sorted = [...props.match.participants].sort(
+            (a, b) => b.rounds_won - a.rounds_won,
+        );
         return `${sorted[0]?.player_name} ${sorted[0]?.rounds_won} – ${sorted[1]?.rounds_won} ${sorted[1]?.player_name}`;
     }
     if (props.match.mode === '2v2') {
@@ -28,8 +30,12 @@ const summary = computed(() => {
             .join(' & ');
         return `${a} ${props.match.team_a_rounds} – ${props.match.team_b_rounds} ${b}`;
     }
-    const sorted = [...props.match.participants].sort((a, b) => (a.placement ?? 99) - (b.placement ?? 99));
-    return sorted.map((p) => `${p.placement}. ${p.player_name}(${p.rounds_won})`).join('  ');
+    const sorted = [...props.match.participants].sort(
+        (a, b) => (a.placement ?? 99) - (b.placement ?? 99),
+    );
+    return sorted
+        .map((p) => `${p.placement}. ${p.player_name}(${p.rounds_won})`)
+        .join('  ');
 });
 
 const remove = () => {
@@ -39,16 +45,18 @@ const remove = () => {
 </script>
 
 <template>
-    <div class="flex items-center justify-between gap-3 border-2 border-border bg-card px-4 py-3">
+    <div
+        class="flex items-center justify-between gap-3 border-2 border-border bg-card px-4 py-3"
+    >
         <div class="flex items-center gap-3">
             <span
-                class="border-2 px-2 py-1 text-xs font-bold uppercase tracking-wider"
+                class="border-2 px-2 py-1 text-xs font-bold tracking-wider uppercase"
                 :class="
                     match.mode === '1v1'
                         ? 'border-primary text-primary'
                         : match.mode === '2v2'
-                        ? 'border-accent text-accent'
-                        : 'border-foreground text-foreground'
+                          ? 'border-accent text-accent'
+                          : 'border-foreground text-foreground'
                 "
             >
                 {{ match.mode === 'ffa' ? 'FFA' : match.mode }}
@@ -59,14 +67,14 @@ const remove = () => {
         <div v-if="canEdit" class="flex gap-1">
             <button
                 type="button"
-                class="border-2 border-border px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground hover:border-accent hover:text-accent"
+                class="border-2 border-border px-2 py-1 text-xs tracking-wider text-muted-foreground uppercase hover:border-accent hover:text-accent"
                 @click="emit('edit', match)"
             >
                 Edit
             </button>
             <button
                 type="button"
-                class="border-2 border-border px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground hover:border-destructive hover:text-destructive"
+                class="border-2 border-border px-2 py-1 text-xs tracking-wider text-muted-foreground uppercase hover:border-destructive hover:text-destructive"
                 @click="remove"
             >
                 Remove

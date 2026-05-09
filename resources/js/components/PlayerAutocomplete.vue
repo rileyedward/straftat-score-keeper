@@ -22,14 +22,19 @@ let blurId: ReturnType<typeof setTimeout> | undefined;
 
 const exclude = computed(() => new Set(props.excludeIds ?? []));
 
-const filtered = computed(() => results.value.filter((p) => !exclude.value.has(p.id)));
+const filtered = computed(() =>
+    results.value.filter((p) => !exclude.value.has(p.id)),
+);
 
 const fetchResults = async (q: string) => {
     loading.value = true;
     try {
-        const res = await fetch(`/api/players/search?q=${encodeURIComponent(q)}`, {
-            headers: { Accept: 'application/json' },
-        });
+        const res = await fetch(
+            `/api/players/search?q=${encodeURIComponent(q)}`,
+            {
+                headers: { Accept: 'application/json' },
+            },
+        );
         const data = await res.json();
         results.value = data.players;
     } finally {
@@ -55,10 +60,14 @@ watch(query, (q) => {
 });
 
 const exactMatch = computed(() =>
-    filtered.value.some((p) => p.name.toLowerCase() === query.value.trim().toLowerCase()),
+    filtered.value.some(
+        (p) => p.name.toLowerCase() === query.value.trim().toLowerCase(),
+    ),
 );
 
-const canCreate = computed(() => query.value.trim().length > 0 && !exactMatch.value);
+const canCreate = computed(
+    () => query.value.trim().length > 0 && !exactMatch.value,
+);
 
 const pickPlayer = (player: Player) => {
     emit('select', player);
@@ -76,7 +85,10 @@ const createNew = async () => {
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '',
+            'X-CSRF-TOKEN':
+                document.querySelector<HTMLMetaElement>(
+                    'meta[name="csrf-token"]',
+                )?.content || '',
             'X-Requested-With': 'XMLHttpRequest',
         },
         credentials: 'same-origin',
@@ -118,12 +130,15 @@ const createNew = async () => {
             <button
                 v-if="canCreate"
                 type="button"
-                class="block w-full border-t-2 border-border px-3 py-2 text-left text-xs uppercase tracking-wider text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                class="block w-full border-t-2 border-border px-3 py-2 text-left text-xs tracking-wider text-primary uppercase transition-colors hover:bg-primary hover:text-primary-foreground"
                 @click="createNew"
             >
                 + Create &ldquo;{{ query.trim() }}&rdquo;
             </button>
-            <div v-if="loading && !filtered.length" class="px-3 py-2 text-xs text-muted-foreground">
+            <div
+                v-if="loading && !filtered.length"
+                class="px-3 py-2 text-xs text-muted-foreground"
+            >
                 Searching...
             </div>
         </div>

@@ -14,7 +14,8 @@ const props = defineProps<{
 }>();
 
 const champion = computed(() => props.leaderboard[0] ?? null);
-const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : '—');
+const fmtDate = (iso: string | null) =>
+    iso ? new Date(iso).toLocaleDateString() : '—';
 </script>
 
 <template>
@@ -23,28 +24,53 @@ const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString(
     <AppShell>
         <div class="mx-auto max-w-4xl space-y-8 p-8">
             <header class="text-center">
-                <div class="text-xs uppercase tracking-widest text-muted-foreground">Final Results</div>
-                <h1 class="mt-1 text-4xl font-bold uppercase tracking-widest">{{ tournament.name }}</h1>
+                <div
+                    class="text-xs tracking-widest text-muted-foreground uppercase"
+                >
+                    Final Results
+                </div>
+                <h1 class="mt-1 text-4xl font-bold tracking-widest uppercase">
+                    {{ tournament.name }}
+                </h1>
                 <div class="mt-2 text-xs text-muted-foreground">
-                    {{ fmtDate(tournament.started_at) }} → {{ fmtDate(tournament.ended_at) }} · {{ tournament.matches_count }} matches
+                    {{ fmtDate(tournament.started_at) }} →
+                    {{ fmtDate(tournament.ended_at) }} ·
+                    {{ tournament.matches_count }} matches
                 </div>
             </header>
 
-            <section v-if="champion" class="border-2 border-primary bg-card p-8 text-center">
-                <div class="text-xs uppercase tracking-widest text-primary">★ Champion ★</div>
+            <section
+                v-if="champion"
+                class="border-2 border-primary bg-card p-8 text-center"
+            >
+                <div class="text-xs tracking-widest text-primary uppercase">
+                    ★ Champion ★
+                </div>
                 <div class="my-4 flex justify-center">
                     <PlayerAvatar :player="champion" size="lg" />
                 </div>
-                <div class="text-3xl font-bold uppercase tracking-widest">{{ champion.name }}</div>
+                <div class="text-3xl font-bold tracking-widest uppercase">
+                    {{ champion.name }}
+                </div>
                 <div class="mt-1 font-mono text-sm text-muted-foreground">
-                    {{ champion.points }} pts · {{ champion.wins }}-{{ champion.losses }}
+                    {{ champion.points }} pts · {{ champion.wins }}-{{
+                        champion.losses
+                    }}
                 </div>
             </section>
 
             <section v-if="achievements.length" class="space-y-3">
-                <h2 class="text-sm font-bold uppercase tracking-widest text-muted-foreground">Bonus Stars</h2>
+                <h2
+                    class="text-sm font-bold tracking-widest text-muted-foreground uppercase"
+                >
+                    Bonus Stars
+                </h2>
                 <div class="grid gap-3 md:grid-cols-2">
-                    <AchievementBadge v-for="a in achievements" :key="a.key" :achievement="a" />
+                    <AchievementBadge
+                        v-for="a in achievements"
+                        :key="a.key"
+                        :achievement="a"
+                    />
                 </div>
             </section>
 
@@ -53,13 +79,13 @@ const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString(
             <div class="flex justify-between">
                 <Link
                     href="/tournaments"
-                    class="border-2 border-border px-4 py-2 text-xs uppercase tracking-wider text-muted-foreground hover:border-foreground hover:text-foreground"
+                    class="border-2 border-border px-4 py-2 text-xs tracking-wider text-muted-foreground uppercase hover:border-foreground hover:text-foreground"
                 >
                     ← Archive
                 </Link>
                 <Link
                     href="/"
-                    class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground hover:bg-background hover:text-primary"
+                    class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold tracking-widest text-primary-foreground uppercase hover:bg-background hover:text-primary"
                 >
                     New Tournament
                 </Link>

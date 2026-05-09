@@ -5,7 +5,13 @@ import MatchListItem from '@/components/MatchListItem.vue';
 import PlayerAutocomplete from '@/components/PlayerAutocomplete.vue';
 import PlayerAvatar from '@/components/PlayerAvatar.vue';
 import AppShell from '@/layouts/AppShell.vue';
-import type { LeaderboardRow, MatchMode, MatchRecord, Player, Tournament } from '@/types';
+import type {
+    LeaderboardRow,
+    MatchMode,
+    MatchRecord,
+    Player,
+    Tournament,
+} from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -35,7 +41,8 @@ const closeWizard = () => {
 };
 
 const endTournament = () => {
-    if (!confirm(`End "${props.tournament.name}" and crown the winner?`)) return;
+    if (!confirm(`End "${props.tournament.name}" and crown the winner?`))
+        return;
     router.post(`/tournaments/${props.tournament.id}/end`);
 };
 
@@ -46,7 +53,10 @@ const pendingPlayers = ref<Player[]>([]);
 const addPlayerForm = useForm({ player_ids: [] as number[] });
 
 const rosterIds = computed(() => props.roster.map((p) => p.id));
-const excludeIds = computed(() => [...rosterIds.value, ...pendingPlayers.value.map((p) => p.id)]);
+const excludeIds = computed(() => [
+    ...rosterIds.value,
+    ...pendingPlayers.value.map((p) => p.id),
+]);
 
 const queuePlayer = (player: Player) => {
     if (pendingPlayers.value.find((p) => p.id === player.id)) return;
@@ -78,7 +88,9 @@ const matchFilters: Array<{ key: MatchFilter; label: string }> = [
     { key: 'ffa', label: 'FFA' },
 ];
 const filteredMatches = computed(() =>
-    matchFilter.value === 'all' ? props.matches : props.matches.filter((m) => m.mode === matchFilter.value),
+    matchFilter.value === 'all'
+        ? props.matches
+        : props.matches.filter((m) => m.mode === matchFilter.value),
 );
 </script>
 
@@ -87,30 +99,42 @@ const filteredMatches = computed(() =>
 
     <AppShell>
         <div class="mx-auto max-w-5xl space-y-6 p-8">
-            <header class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-border pb-4">
+            <header
+                class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-border pb-4"
+            >
                 <div>
-                    <div class="text-xs uppercase tracking-widest text-muted-foreground">
-                        {{ tournament.status === 'active' ? 'Active Tournament' : 'Ended Tournament' }}
+                    <div
+                        class="text-xs tracking-widest text-muted-foreground uppercase"
+                    >
+                        {{
+                            tournament.status === 'active'
+                                ? 'Active Tournament'
+                                : 'Ended Tournament'
+                        }}
                     </div>
-                    <h1 class="text-4xl font-bold uppercase tracking-widest text-foreground">
+                    <h1
+                        class="text-4xl font-bold tracking-widest text-foreground uppercase"
+                    >
                         {{ tournament.name }}
                     </h1>
                     <div class="mt-1 text-xs text-muted-foreground">
-                        {{ matches.length }} match{{ matches.length === 1 ? '' : 'es' }} ·
-                        {{ roster.length }} players
+                        {{ matches.length }} match{{
+                            matches.length === 1 ? '' : 'es'
+                        }}
+                        · {{ roster.length }} players
                     </div>
                 </div>
                 <div v-if="isActive" class="flex gap-2">
                     <button
                         type="button"
-                        class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary"
+                        class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-background hover:text-primary"
                         @click="openCreate"
                     >
                         + Add Match
                     </button>
                     <button
                         type="button"
-                        class="border-2 border-primary bg-transparent px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                        class="border-2 border-primary bg-transparent px-4 py-2 text-xs font-bold tracking-widest text-primary uppercase transition-colors hover:bg-primary hover:text-primary-foreground"
                         @click="endTournament"
                     >
                         End Tournament
@@ -121,14 +145,18 @@ const filteredMatches = computed(() =>
             <div class="grid gap-6 lg:grid-cols-[2fr_1fr]">
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-bold uppercase tracking-widest text-muted-foreground">Match Log</h2>
+                        <h2
+                            class="text-sm font-bold tracking-widest text-muted-foreground uppercase"
+                        >
+                            Match Log
+                        </h2>
                         <div class="flex gap-2">
                             <button
                                 v-for="f in matchFilters"
                                 :key="f.key"
                                 type="button"
                                 :class="[
-                                    'border-2 px-2 py-1 text-xs uppercase tracking-wider transition-colors',
+                                    'border-2 px-2 py-1 text-xs tracking-wider uppercase transition-colors',
                                     matchFilter === f.key
                                         ? 'border-primary bg-primary text-primary-foreground'
                                         : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
@@ -139,10 +167,16 @@ const filteredMatches = computed(() =>
                             </button>
                         </div>
                     </div>
-                    <div v-if="!matches.length" class="border-2 border-border bg-card p-6 text-center text-sm text-muted-foreground">
+                    <div
+                        v-if="!matches.length"
+                        class="border-2 border-border bg-card p-6 text-center text-sm text-muted-foreground"
+                    >
                         No matches yet. Hit "Add Match" to record the first one.
                     </div>
-                    <div v-else-if="!filteredMatches.length" class="border-2 border-border bg-card p-6 text-center text-sm text-muted-foreground">
+                    <div
+                        v-else-if="!filteredMatches.length"
+                        class="border-2 border-border bg-card p-6 text-center text-sm text-muted-foreground"
+                    >
                         No {{ matchFilter }} matches recorded yet.
                     </div>
                     <MatchListItem
@@ -156,11 +190,15 @@ const filteredMatches = computed(() =>
 
                 <aside class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-bold uppercase tracking-widest text-muted-foreground">Roster</h2>
+                        <h2
+                            class="text-sm font-bold tracking-widest text-muted-foreground uppercase"
+                        >
+                            Roster
+                        </h2>
                         <button
                             v-if="isActive"
                             type="button"
-                            class="border-2 border-border px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+                            class="border-2 border-border px-2 py-1 text-xs tracking-wider text-muted-foreground uppercase transition-colors hover:border-foreground hover:text-foreground"
                             @click="addingPlayers = !addingPlayers"
                         >
                             {{ addingPlayers ? 'Cancel' : '+ Add' }}
@@ -179,9 +217,19 @@ const filteredMatches = computed(() =>
                         </a>
                     </div>
 
-                    <div v-if="addingPlayers" class="space-y-2 border-2 border-border bg-card p-3">
-                        <PlayerAutocomplete :exclude-ids="excludeIds" placeholder="Type a name..." @select="queuePlayer" />
-                        <div v-if="pendingPlayers.length" class="flex flex-col gap-1">
+                    <div
+                        v-if="addingPlayers"
+                        class="space-y-2 border-2 border-border bg-card p-3"
+                    >
+                        <PlayerAutocomplete
+                            :exclude-ids="excludeIds"
+                            placeholder="Type a name..."
+                            @select="queuePlayer"
+                        />
+                        <div
+                            v-if="pendingPlayers.length"
+                            class="flex flex-col gap-1"
+                        >
                             <div
                                 v-for="p in pendingPlayers"
                                 :key="p.id"
@@ -202,11 +250,16 @@ const filteredMatches = computed(() =>
                         </div>
                         <button
                             type="button"
-                            :disabled="!pendingPlayers.length || addPlayerForm.processing"
-                            class="w-full border-2 border-primary bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
+                            :disabled="
+                                !pendingPlayers.length ||
+                                addPlayerForm.processing
+                            "
+                            class="w-full border-2 border-primary bg-primary px-3 py-1.5 text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
                             @click="submitAddPlayers"
                         >
-                            Add {{ pendingPlayers.length || '' }} Player{{ pendingPlayers.length === 1 ? '' : 's' }}
+                            Add {{ pendingPlayers.length || '' }} Player{{
+                                pendingPlayers.length === 1 ? '' : 's'
+                            }}
                         </button>
                     </div>
                 </aside>

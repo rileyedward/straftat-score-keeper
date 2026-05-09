@@ -17,7 +17,8 @@ defineProps<{
     };
 }>();
 
-const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : '—');
+const fmt = (iso: string | null) =>
+    iso ? new Date(iso).toLocaleDateString() : '—';
 </script>
 
 <template>
@@ -26,11 +27,20 @@ const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : 
     <AppShell>
         <div class="mx-auto max-w-3xl space-y-4 p-8">
             <header class="border-b-2 border-border pb-4">
-                <h1 class="text-3xl font-bold uppercase tracking-widest">Archive</h1>
-                <p class="mt-1 text-xs uppercase tracking-wider text-muted-foreground">Past game nights</p>
+                <h1 class="text-3xl font-bold tracking-widest uppercase">
+                    Archive
+                </h1>
+                <p
+                    class="mt-1 text-xs tracking-wider text-muted-foreground uppercase"
+                >
+                    Past game nights
+                </p>
             </header>
 
-            <div v-if="!tournaments.data.length" class="border-2 border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            <div
+                v-if="!tournaments.data.length"
+                class="border-2 border-border bg-card p-8 text-center text-sm text-muted-foreground"
+            >
                 No ended tournaments yet.
             </div>
 
@@ -43,12 +53,21 @@ const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : 
                 >
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-lg font-bold uppercase tracking-wide">{{ t.name }}</div>
+                            <div
+                                class="text-lg font-bold tracking-wide uppercase"
+                            >
+                                {{ t.name }}
+                            </div>
                             <div class="text-xs text-muted-foreground">
-                                {{ fmt(t.started_at) }} → {{ fmt(t.ended_at) }} · {{ t.matches_count }} matches
+                                {{ fmt(t.started_at) }} →
+                                {{ fmt(t.ended_at) }} ·
+                                {{ t.matches_count }} matches
                             </div>
                         </div>
-                        <span class="text-xs uppercase tracking-wider text-muted-foreground">View →</span>
+                        <span
+                            class="text-xs tracking-wider text-muted-foreground uppercase"
+                            >View →</span
+                        >
                     </div>
                 </Link>
             </div>
@@ -59,8 +78,10 @@ const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : 
                     :key="link.label"
                     :href="link.url ?? ''"
                     :class="[
-                        'border-2 px-3 py-1 text-xs uppercase tracking-wider',
-                        link.active ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-foreground',
+                        'border-2 px-3 py-1 text-xs tracking-wider uppercase',
+                        link.active
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-border text-muted-foreground hover:border-foreground',
                         !link.url ? 'pointer-events-none opacity-50' : '',
                     ]"
                     v-html="link.label"

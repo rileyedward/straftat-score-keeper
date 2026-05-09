@@ -55,7 +55,9 @@ const primeForEdit = (m: MatchRecord) => {
         oneVOnePlayers.value = m.participants
             .map((p) => props.roster.find((r) => r.id === p.player_id))
             .filter(Boolean) as Player[];
-        oneVOneRounds.value = Object.fromEntries(m.participants.map((p) => [p.player_id, p.rounds_won]));
+        oneVOneRounds.value = Object.fromEntries(
+            m.participants.map((p) => [p.player_id, p.rounds_won]),
+        );
     } else if (m.mode === '2v2') {
         teamA.value = m.participants
             .filter((p) => p.team === 'A')
@@ -71,7 +73,9 @@ const primeForEdit = (m: MatchRecord) => {
         ffa.value = m.participants
             .map((p) => props.roster.find((r) => r.id === p.player_id))
             .filter(Boolean) as Player[];
-        ffaRounds.value = Object.fromEntries(m.participants.map((p) => [p.player_id, p.rounds_won]));
+        ffaRounds.value = Object.fromEntries(
+            m.participants.map((p) => [p.player_id, p.rounds_won]),
+        );
     }
     step.value = 3;
 };
@@ -82,15 +86,19 @@ const pickMode = (m: MatchMode) => {
 };
 
 const selectedSet = computed(() => {
-    if (mode.value === '1v1') return new Set(oneVOnePlayers.value.map((p) => p.id));
-    if (mode.value === '2v2') return new Set([...teamA.value, ...teamB.value].map((p) => p.id));
+    if (mode.value === '1v1')
+        return new Set(oneVOnePlayers.value.map((p) => p.id));
+    if (mode.value === '2v2')
+        return new Set([...teamA.value, ...teamB.value].map((p) => p.id));
     return new Set(ffa.value.map((p) => p.id));
 });
 
 const togglePlayer = (player: Player) => {
     if (mode.value === '1v1') {
         if (oneVOnePlayers.value.find((p) => p.id === player.id)) {
-            oneVOnePlayers.value = oneVOnePlayers.value.filter((p) => p.id !== player.id);
+            oneVOnePlayers.value = oneVOnePlayers.value.filter(
+                (p) => p.id !== player.id,
+            );
         } else if (oneVOnePlayers.value.length < 2) {
             oneVOnePlayers.value.push(player);
         }
@@ -118,8 +126,10 @@ const teamOf = (player: Player): 'A' | 'B' | null => {
 
 const canAdvanceFromParticipants = computed(() => {
     if (mode.value === '1v1') return oneVOnePlayers.value.length === 2;
-    if (mode.value === '2v2') return teamA.value.length === 2 && teamB.value.length === 2;
-    if (mode.value === 'ffa') return ffa.value.length === 3 || ffa.value.length === 4;
+    if (mode.value === '2v2')
+        return teamA.value.length === 2 && teamB.value.length === 2;
+    if (mode.value === 'ffa')
+        return ffa.value.length === 3 || ffa.value.length === 4;
     return false;
 });
 
@@ -127,7 +137,8 @@ const goToScore = () => {
     if (!canAdvanceFromParticipants.value) return;
     if (mode.value === '1v1') {
         oneVOnePlayers.value.forEach((p) => {
-            if (oneVOneRounds.value[p.id] === undefined) oneVOneRounds.value[p.id] = 0;
+            if (oneVOneRounds.value[p.id] === undefined)
+                oneVOneRounds.value[p.id] = 0;
         });
     }
     if (mode.value === 'ffa') {
@@ -141,7 +152,8 @@ const goToScore = () => {
 const setOneVOneRounds = (playerId: number, r: number) => {
     if (r === 4) {
         oneVOnePlayers.value.forEach((p) => {
-            if (p.id !== playerId && oneVOneRounds.value[p.id] === 4) oneVOneRounds.value[p.id] = 0;
+            if (p.id !== playerId && oneVOneRounds.value[p.id] === 4)
+                oneVOneRounds.value[p.id] = 0;
         });
     }
     oneVOneRounds.value[playerId] = r;
@@ -160,14 +172,17 @@ const setTeamRounds = (team: 'A' | 'B', r: number) => {
 const setFfaRounds = (playerId: number, r: number) => {
     if (r === 4) {
         ffa.value.forEach((p) => {
-            if (p.id !== playerId && ffaRounds.value[p.id] === 4) ffaRounds.value[p.id] = 0;
+            if (p.id !== playerId && ffaRounds.value[p.id] === 4)
+                ffaRounds.value[p.id] = 0;
         });
     }
     ffaRounds.value[playerId] = r;
 };
 
 const ffaPlacementMap = computed<Record<number, number>>(() => {
-    const sorted = [...ffa.value].sort((a, b) => (ffaRounds.value[b.id] ?? 0) - (ffaRounds.value[a.id] ?? 0));
+    const sorted = [...ffa.value].sort(
+        (a, b) => (ffaRounds.value[b.id] ?? 0) - (ffaRounds.value[a.id] ?? 0),
+    );
     const out: Record<number, number> = {};
     let prevRounds: number | null = null;
     let prevPlace = 0;
@@ -247,16 +262,23 @@ const back = () => {
 </script>
 
 <template>
-    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4" @click.self="emit('close')">
+    <div
+        class="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4"
+        @click.self="emit('close')"
+    >
         <div class="w-full max-w-2xl border-2 border-border bg-background">
-            <header class="flex items-center justify-between border-b-2 border-border p-4">
-                <h2 class="text-lg font-bold uppercase tracking-widest">
+            <header
+                class="flex items-center justify-between border-b-2 border-border p-4"
+            >
+                <h2 class="text-lg font-bold tracking-widest uppercase">
                     {{ editMatch ? 'Edit Match' : 'New Match' }}
-                    <span class="ml-2 text-xs text-muted-foreground">Step {{ step }} / 3</span>
+                    <span class="ml-2 text-xs text-muted-foreground"
+                        >Step {{ step }} / 3</span
+                    >
                 </h2>
                 <button
                     type="button"
-                    class="text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
+                    class="text-xs tracking-wider text-muted-foreground uppercase hover:text-foreground"
                     @click="emit('close')"
                 >
                     Close [Esc]
@@ -265,43 +287,62 @@ const back = () => {
 
             <div class="space-y-4 p-6">
                 <div v-if="step === 1" class="space-y-3">
-                    <p class="text-xs uppercase tracking-wider text-muted-foreground">Pick a mode (1/2/3)</p>
+                    <p
+                        class="text-xs tracking-wider text-muted-foreground uppercase"
+                    >
+                        Pick a mode (1/2/3)
+                    </p>
                     <div class="grid grid-cols-3 gap-3">
                         <button
                             type="button"
-                            class="border-2 border-border bg-card p-6 text-center font-bold uppercase tracking-widest text-foreground transition-colors hover:border-primary hover:text-primary"
+                            class="border-2 border-border bg-card p-6 text-center font-bold tracking-widest text-foreground uppercase transition-colors hover:border-primary hover:text-primary"
                             @click="pickMode('1v1')"
                         >
                             1v1
-                            <div class="mt-1 text-xs text-muted-foreground">2 players</div>
+                            <div class="mt-1 text-xs text-muted-foreground">
+                                2 players
+                            </div>
                         </button>
                         <button
                             type="button"
-                            class="border-2 border-border bg-card p-6 text-center font-bold uppercase tracking-widest text-foreground transition-colors hover:border-primary hover:text-primary"
+                            class="border-2 border-border bg-card p-6 text-center font-bold tracking-widest text-foreground uppercase transition-colors hover:border-primary hover:text-primary"
                             @click="pickMode('2v2')"
                         >
                             2v2
-                            <div class="mt-1 text-xs text-muted-foreground">2 teams of 2</div>
+                            <div class="mt-1 text-xs text-muted-foreground">
+                                2 teams of 2
+                            </div>
                         </button>
                         <button
                             type="button"
-                            class="border-2 border-border bg-card p-6 text-center font-bold uppercase tracking-widest text-foreground transition-colors hover:border-primary hover:text-primary"
+                            class="border-2 border-border bg-card p-6 text-center font-bold tracking-widest text-foreground uppercase transition-colors hover:border-primary hover:text-primary"
                             @click="pickMode('ffa')"
                         >
                             FFA
-                            <div class="mt-1 text-xs text-muted-foreground">3-4 players</div>
+                            <div class="mt-1 text-xs text-muted-foreground">
+                                3-4 players
+                            </div>
                         </button>
                     </div>
                 </div>
 
                 <div v-if="step === 2" class="space-y-3">
-                    <p class="text-xs uppercase tracking-wider text-muted-foreground">
-                        <template v-if="mode === '1v1'">Pick 2 players</template>
-                        <template v-else-if="mode === '2v2'">Assign 4 players to teams A & B</template>
+                    <p
+                        class="text-xs tracking-wider text-muted-foreground uppercase"
+                    >
+                        <template v-if="mode === '1v1'"
+                            >Pick 2 players</template
+                        >
+                        <template v-else-if="mode === '2v2'"
+                            >Assign 4 players to teams A & B</template
+                        >
                         <template v-else>Pick 3 or 4 players</template>
                     </p>
 
-                    <div v-if="mode !== '2v2'" class="grid grid-cols-2 gap-2 md:grid-cols-3">
+                    <div
+                        v-if="mode !== '2v2'"
+                        class="grid grid-cols-2 gap-2 md:grid-cols-3"
+                    >
                         <button
                             v-for="p in roster"
                             :key="p.id"
@@ -320,7 +361,11 @@ const back = () => {
                     </div>
 
                     <div v-else class="grid gap-3 md:grid-cols-2">
-                        <div v-for="p in roster" :key="p.id" class="flex items-center justify-between border-2 border-border bg-card px-3 py-2">
+                        <div
+                            v-for="p in roster"
+                            :key="p.id"
+                            class="flex items-center justify-between border-2 border-border bg-card px-3 py-2"
+                        >
                             <div class="flex items-center gap-2">
                                 <PlayerAvatar :player="p" size="sm" />
                                 <span class="text-sm">{{ p.name }}</span>
@@ -329,24 +374,34 @@ const back = () => {
                                 <button
                                     type="button"
                                     :class="[
-                                        'border-2 px-2 py-1 text-xs font-bold uppercase tracking-wider',
+                                        'border-2 px-2 py-1 text-xs font-bold tracking-wider uppercase',
                                         teamOf(p) === 'A'
                                             ? 'border-primary bg-primary text-primary-foreground'
                                             : 'border-border text-muted-foreground hover:border-primary hover:text-primary',
                                     ]"
-                                    @click="assignTeam(p, teamOf(p) === 'A' ? null : 'A')"
+                                    @click="
+                                        assignTeam(
+                                            p,
+                                            teamOf(p) === 'A' ? null : 'A',
+                                        )
+                                    "
                                 >
                                     A
                                 </button>
                                 <button
                                     type="button"
                                     :class="[
-                                        'border-2 px-2 py-1 text-xs font-bold uppercase tracking-wider',
+                                        'border-2 px-2 py-1 text-xs font-bold tracking-wider uppercase',
                                         teamOf(p) === 'B'
                                             ? 'border-accent bg-accent text-accent-foreground'
                                             : 'border-border text-muted-foreground hover:border-accent hover:text-accent',
                                     ]"
-                                    @click="assignTeam(p, teamOf(p) === 'B' ? null : 'B')"
+                                    @click="
+                                        assignTeam(
+                                            p,
+                                            teamOf(p) === 'B' ? null : 'B',
+                                        )
+                                    "
                                 >
                                     B
                                 </button>
@@ -356,7 +411,11 @@ const back = () => {
                 </div>
 
                 <div v-if="step === 3" class="space-y-4">
-                    <p class="text-xs uppercase tracking-wider text-muted-foreground">Score (first to 4)</p>
+                    <p
+                        class="text-xs tracking-wider text-muted-foreground uppercase"
+                    >
+                        Score (first to 4)
+                    </p>
 
                     <!-- 1v1 -->
                     <div v-if="mode === '1v1'" class="space-y-2">
@@ -365,7 +424,9 @@ const back = () => {
                             :key="p.id"
                             class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2"
                         >
-                            <span class="min-w-0 flex-1 truncate font-medium">{{ p.name }}</span>
+                            <span class="min-w-0 flex-1 truncate font-medium">{{
+                                p.name
+                            }}</span>
                             <div class="flex shrink-0 gap-1">
                                 <button
                                     v-for="r in [0, 1, 2, 3, 4]"
@@ -389,10 +450,20 @@ const back = () => {
 
                     <!-- 2v2 -->
                     <div v-if="mode === '2v2'" class="space-y-2">
-                        <div class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2">
+                        <div
+                            class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2"
+                        >
                             <div class="min-w-0 flex-1">
-                                <div class="text-xs font-bold uppercase tracking-widest text-primary">Team A</div>
-                                <div class="truncate text-sm text-muted-foreground">{{ teamA.map((p) => p.name).join(', ') }}</div>
+                                <div
+                                    class="text-xs font-bold tracking-widest text-primary uppercase"
+                                >
+                                    Team A
+                                </div>
+                                <div
+                                    class="truncate text-sm text-muted-foreground"
+                                >
+                                    {{ teamA.map((p) => p.name).join(', ') }}
+                                </div>
                             </div>
                             <div class="flex shrink-0 gap-1">
                                 <button
@@ -402,7 +473,9 @@ const back = () => {
                                     :class="[
                                         'w-9 border-2 py-1.5 text-center font-mono text-sm font-bold transition-colors',
                                         teamARounds === r
-                                            ? r === 4 ? 'border-primary bg-primary text-primary-foreground' : 'border-foreground bg-foreground text-background'
+                                            ? r === 4
+                                                ? 'border-primary bg-primary text-primary-foreground'
+                                                : 'border-foreground bg-foreground text-background'
                                             : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
                                     ]"
                                     @click="setTeamRounds('A', r)"
@@ -411,10 +484,20 @@ const back = () => {
                                 </button>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2">
+                        <div
+                            class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2"
+                        >
                             <div class="min-w-0 flex-1">
-                                <div class="text-xs font-bold uppercase tracking-widest text-accent">Team B</div>
-                                <div class="truncate text-sm text-muted-foreground">{{ teamB.map((p) => p.name).join(', ') }}</div>
+                                <div
+                                    class="text-xs font-bold tracking-widest text-accent uppercase"
+                                >
+                                    Team B
+                                </div>
+                                <div
+                                    class="truncate text-sm text-muted-foreground"
+                                >
+                                    {{ teamB.map((p) => p.name).join(', ') }}
+                                </div>
                             </div>
                             <div class="flex shrink-0 gap-1">
                                 <button
@@ -424,7 +507,9 @@ const back = () => {
                                     :class="[
                                         'w-9 border-2 py-1.5 text-center font-mono text-sm font-bold transition-colors',
                                         teamBRounds === r
-                                            ? r === 4 ? 'border-primary bg-primary text-primary-foreground' : 'border-foreground bg-foreground text-background'
+                                            ? r === 4
+                                                ? 'border-primary bg-primary text-primary-foreground'
+                                                : 'border-foreground bg-foreground text-background'
                                             : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
                                     ]"
                                     @click="setTeamRounds('B', r)"
@@ -437,7 +522,10 @@ const back = () => {
 
                     <!-- FFA -->
                     <div v-if="mode === 'ffa'" class="space-y-2">
-                        <p class="text-xs text-muted-foreground">Select rounds for each player. Place updates live — row order stays fixed.</p>
+                        <p class="text-xs text-muted-foreground">
+                            Select rounds for each player. Place updates live —
+                            row order stays fixed.
+                        </p>
                         <div
                             v-for="p in ffa"
                             :key="p.id"
@@ -445,17 +533,25 @@ const back = () => {
                         >
                             <span
                                 :class="[
-                                    'inline-flex w-10 shrink-0 items-center justify-center border-2 py-1 text-xs font-bold uppercase tracking-wider',
+                                    'inline-flex w-10 shrink-0 items-center justify-center border-2 py-1 text-xs font-bold tracking-wider uppercase',
                                     ffaPlacementMap[p.id] === 1
                                         ? 'border-primary bg-primary text-primary-foreground'
-                                        : ffaPlaceCounts[ffaPlacementMap[p.id]] > 1
+                                        : ffaPlaceCounts[
+                                                ffaPlacementMap[p.id]
+                                            ] > 1
                                           ? 'border-accent text-accent'
                                           : 'border-border text-muted-foreground',
                                 ]"
                             >
-                                {{ ffaPlaceCounts[ffaPlacementMap[p.id]] > 1 ? `T${ffaPlacementMap[p.id]}` : ffaPlacementMap[p.id] }}
+                                {{
+                                    ffaPlaceCounts[ffaPlacementMap[p.id]] > 1
+                                        ? `T${ffaPlacementMap[p.id]}`
+                                        : ffaPlacementMap[p.id]
+                                }}
                             </span>
-                            <span class="min-w-0 flex-1 truncate font-medium">{{ p.name }}</span>
+                            <span class="min-w-0 flex-1 truncate font-medium">{{
+                                p.name
+                            }}</span>
                             <div class="flex shrink-0 gap-1">
                                 <button
                                     v-for="r in [0, 1, 2, 3, 4]"
@@ -477,16 +573,23 @@ const back = () => {
                         </div>
                     </div>
 
-                    <div v-if="Object.keys(errors).length" class="border-2 border-destructive bg-destructive/10 p-3 text-sm">
-                        <div v-for="(msg, key) in errors" :key="key">{{ msg }}</div>
+                    <div
+                        v-if="Object.keys(errors).length"
+                        class="border-2 border-destructive bg-destructive/10 p-3 text-sm"
+                    >
+                        <div v-for="(msg, key) in errors" :key="key">
+                            {{ msg }}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <footer class="flex items-center justify-between border-t-2 border-border p-4">
+            <footer
+                class="flex items-center justify-between border-t-2 border-border p-4"
+            >
                 <button
                     type="button"
-                    class="border-2 border-border px-3 py-1 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+                    class="border-2 border-border px-3 py-1 text-xs tracking-wider text-muted-foreground uppercase transition-colors hover:border-foreground hover:text-foreground"
                     @click="back"
                 >
                     {{ step === 1 ? 'Cancel' : 'Back' }}
@@ -496,7 +599,7 @@ const back = () => {
                     v-if="step === 2"
                     type="button"
                     :disabled="!canAdvanceFromParticipants"
-                    class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
+                    class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
                     @click="goToScore"
                 >
                     Next →
@@ -506,7 +609,7 @@ const back = () => {
                     v-if="step === 3"
                     type="button"
                     :disabled="submitting"
-                    class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
+                    class="border-2 border-primary bg-primary px-4 py-2 text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
                     @click="submit"
                 >
                     {{ editMatch ? 'Save' : 'Record Match' }}

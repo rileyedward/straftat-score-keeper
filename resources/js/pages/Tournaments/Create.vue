@@ -41,33 +41,55 @@ const submit = () => {
     <AppShell>
         <div class="mx-auto max-w-2xl space-y-6 p-8">
             <header class="border-b-2 border-border pb-4">
-                <h1 class="text-3xl font-bold uppercase tracking-widest">New Tournament</h1>
-                <p class="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
+                <h1 class="text-3xl font-bold tracking-widest uppercase">
+                    New Tournament
+                </h1>
+                <p
+                    class="mt-1 text-xs tracking-wider text-muted-foreground uppercase"
+                >
                     Name it. Stack the lobby. Start scoring.
                 </p>
             </header>
 
             <form class="space-y-6" @submit.prevent="submit">
                 <div>
-                    <label class="mb-2 block text-xs uppercase tracking-wider text-muted-foreground">Name</label>
+                    <label
+                        class="mb-2 block text-xs tracking-wider text-muted-foreground uppercase"
+                        >Name</label
+                    >
                     <input
                         v-model="form.name"
                         type="text"
                         class="w-full border-2 border-border bg-background px-3 py-2 font-mono focus:border-primary focus:outline-none"
                     />
-                    <p v-if="form.errors.name" class="mt-1 text-sm text-destructive">{{ form.errors.name }}</p>
+                    <p
+                        v-if="form.errors.name"
+                        class="mt-1 text-sm text-destructive"
+                    >
+                        {{ form.errors.name }}
+                    </p>
                 </div>
 
                 <div>
-                    <label class="mb-2 block text-xs uppercase tracking-wider text-muted-foreground">
+                    <label
+                        class="mb-2 block text-xs tracking-wider text-muted-foreground uppercase"
+                    >
                         Roster ({{ roster.length }})
                     </label>
-                    <PlayerAutocomplete :exclude-ids="excludeIds" placeholder="Type a name..." @select="addPlayer" />
+                    <PlayerAutocomplete
+                        :exclude-ids="excludeIds"
+                        placeholder="Type a name..."
+                        @select="addPlayer"
+                    />
                     <p class="mt-2 text-xs text-muted-foreground">
-                        Type to search existing players. Press Enter on an unmatched name to create.
+                        Type to search existing players. Press Enter on an
+                        unmatched name to create.
                     </p>
 
-                    <div v-if="roster.length" class="mt-4 grid grid-cols-2 gap-2 md:grid-cols-3">
+                    <div
+                        v-if="roster.length"
+                        class="mt-4 grid grid-cols-2 gap-2 md:grid-cols-3"
+                    >
                         <div
                             v-for="p in roster"
                             :key="p.id"
@@ -75,11 +97,13 @@ const submit = () => {
                         >
                             <div class="flex items-center gap-2">
                                 <PlayerAvatar :player="p" size="sm" />
-                                <span class="truncate text-sm">{{ p.name }}</span>
+                                <span class="truncate text-sm">{{
+                                    p.name
+                                }}</span>
                             </div>
                             <button
                                 type="button"
-                                class="text-xs uppercase tracking-wider text-muted-foreground hover:text-destructive"
+                                class="text-xs tracking-wider text-muted-foreground uppercase hover:text-destructive"
                                 @click="removePlayer(p.id)"
                             >
                                 ✕
@@ -87,13 +111,18 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <p v-if="form.errors.player_ids" class="mt-2 text-sm text-destructive">{{ form.errors.player_ids }}</p>
+                    <p
+                        v-if="form.errors.player_ids"
+                        class="mt-2 text-sm text-destructive"
+                    >
+                        {{ form.errors.player_ids }}
+                    </p>
                 </div>
 
                 <button
                     type="submit"
                     :disabled="form.processing || roster.length < 2"
-                    class="w-full border-2 border-primary bg-primary px-4 py-2 font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
+                    class="w-full border-2 border-primary bg-primary px-4 py-2 font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-background hover:text-primary disabled:opacity-50"
                 >
                     Start Tournament
                 </button>

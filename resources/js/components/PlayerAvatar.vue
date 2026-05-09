@@ -11,7 +11,11 @@ const props = withDefaults(
 );
 
 const sizeClass = computed(() =>
-    props.size === 'sm' ? 'w-7 h-7 text-xs' : props.size === 'lg' ? 'w-14 h-14 text-lg' : 'w-10 h-10 text-sm',
+    props.size === 'sm'
+        ? 'w-7 h-7 text-xs'
+        : props.size === 'lg'
+          ? 'w-14 h-14 text-lg'
+          : 'w-10 h-10 text-sm',
 );
 
 const initials = computed(() =>
@@ -28,7 +32,7 @@ const initials = computed(() =>
     <div
         :class="[
             sizeClass,
-            'inline-flex items-center justify-center border-2 border-border bg-muted font-bold uppercase tracking-wider text-foreground',
+            'inline-flex items-center justify-center border-2 border-border bg-muted font-bold tracking-wider text-foreground uppercase',
         ]"
     >
         <img
