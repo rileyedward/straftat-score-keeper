@@ -138,6 +138,34 @@ const goToScore = () => {
     step.value = 3;
 };
 
+const setOneVOneRounds = (playerId: number, r: number) => {
+    if (r === 4) {
+        oneVOnePlayers.value.forEach((p) => {
+            if (p.id !== playerId && oneVOneRounds.value[p.id] === 4) oneVOneRounds.value[p.id] = 0;
+        });
+    }
+    oneVOneRounds.value[playerId] = r;
+};
+
+const setTeamRounds = (team: 'A' | 'B', r: number) => {
+    if (r === 4) {
+        if (team === 'A' && teamBRounds.value === 4) teamBRounds.value = 0;
+        if (team === 'B' && teamARounds.value === 4) teamARounds.value = 0;
+    }
+    if (team === 'A') teamARounds.value = r;
+    else teamBRounds.value = r;
+};
+
+// FFA helpers
+const setFfaRounds = (playerId: number, r: number) => {
+    if (r === 4) {
+        ffa.value.forEach((p) => {
+            if (p.id !== playerId && ffaRounds.value[p.id] === 4) ffaRounds.value[p.id] = 0;
+        });
+    }
+    ffaRounds.value[playerId] = r;
+};
+
 const ffaPlacementMap = computed<Record<number, number>>(() => {
     const sorted = [...ffa.value].sort((a, b) => (ffaRounds.value[b.id] ?? 0) - (ffaRounds.value[a.id] ?? 0));
     const out: Record<number, number> = {};
@@ -327,71 +355,97 @@ const back = () => {
                     </div>
                 </div>
 
-                <div v-if="step === 3" class="space-y-3">
+                <div v-if="step === 3" class="space-y-4">
                     <p class="text-xs uppercase tracking-wider text-muted-foreground">Score (first to 4)</p>
 
+                    <!-- 1v1 -->
                     <div v-if="mode === '1v1'" class="space-y-2">
                         <div
                             v-for="p in oneVOnePlayers"
                             :key="p.id"
-                            class="flex items-center justify-between border-2 border-border bg-card px-3 py-2"
+                            class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2"
                         >
-                            <span class="font-medium">{{ p.name }}</span>
-                            <input
-                                v-model.number="oneVOneRounds[p.id]"
-                                type="number"
-                                min="0"
-                                max="4"
-                                class="w-20 border-2 border-border bg-background px-2 py-1 text-center font-mono"
-                            />
-                        </div>
-                    </div>
-
-                    <div v-if="mode === '2v2'" class="space-y-3">
-                        <div class="border-2 border-border bg-card p-3">
-                            <div class="mb-2 flex items-center justify-between">
-                                <span class="text-xs font-bold uppercase tracking-wider text-primary">Team A</span>
-                                <input
-                                    v-model.number="teamARounds"
-                                    type="number"
-                                    min="0"
-                                    max="4"
-                                    class="w-20 border-2 border-border bg-background px-2 py-1 text-center font-mono"
-                                />
-                            </div>
-                            <div class="text-sm text-muted-foreground">
-                                {{ teamA.map((p) => p.name).join(', ') }}
-                            </div>
-                        </div>
-                        <div class="border-2 border-border bg-card p-3">
-                            <div class="mb-2 flex items-center justify-between">
-                                <span class="text-xs font-bold uppercase tracking-wider text-accent">Team B</span>
-                                <input
-                                    v-model.number="teamBRounds"
-                                    type="number"
-                                    min="0"
-                                    max="4"
-                                    class="w-20 border-2 border-border bg-background px-2 py-1 text-center font-mono"
-                                />
-                            </div>
-                            <div class="text-sm text-muted-foreground">
-                                {{ teamB.map((p) => p.name).join(', ') }}
+                            <span class="min-w-0 flex-1 truncate font-medium">{{ p.name }}</span>
+                            <div class="flex shrink-0 gap-1">
+                                <button
+                                    v-for="r in [0, 1, 2, 3, 4]"
+                                    :key="r"
+                                    type="button"
+                                    :class="[
+                                        'w-9 border-2 py-1.5 text-center font-mono text-sm font-bold transition-colors',
+                                        oneVOneRounds[p.id] === r
+                                            ? r === 4
+                                                ? 'border-primary bg-primary text-primary-foreground'
+                                                : 'border-foreground bg-foreground text-background'
+                                            : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
+                                    ]"
+                                    @click="setOneVOneRounds(p.id, r)"
+                                >
+                                    {{ r }}
+                                </button>
                             </div>
                         </div>
                     </div>
 
+                    <!-- 2v2 -->
+                    <div v-if="mode === '2v2'" class="space-y-2">
+                        <div class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-bold uppercase tracking-widest text-primary">Team A</div>
+                                <div class="truncate text-sm text-muted-foreground">{{ teamA.map((p) => p.name).join(', ') }}</div>
+                            </div>
+                            <div class="flex shrink-0 gap-1">
+                                <button
+                                    v-for="r in [0, 1, 2, 3, 4]"
+                                    :key="r"
+                                    type="button"
+                                    :class="[
+                                        'w-9 border-2 py-1.5 text-center font-mono text-sm font-bold transition-colors',
+                                        teamARounds === r
+                                            ? r === 4 ? 'border-primary bg-primary text-primary-foreground' : 'border-foreground bg-foreground text-background'
+                                            : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
+                                    ]"
+                                    @click="setTeamRounds('A', r)"
+                                >
+                                    {{ r }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-bold uppercase tracking-widest text-accent">Team B</div>
+                                <div class="truncate text-sm text-muted-foreground">{{ teamB.map((p) => p.name).join(', ') }}</div>
+                            </div>
+                            <div class="flex shrink-0 gap-1">
+                                <button
+                                    v-for="r in [0, 1, 2, 3, 4]"
+                                    :key="r"
+                                    type="button"
+                                    :class="[
+                                        'w-9 border-2 py-1.5 text-center font-mono text-sm font-bold transition-colors',
+                                        teamBRounds === r
+                                            ? r === 4 ? 'border-primary bg-primary text-primary-foreground' : 'border-foreground bg-foreground text-background'
+                                            : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
+                                    ]"
+                                    @click="setTeamRounds('B', r)"
+                                >
+                                    {{ r }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FFA -->
                     <div v-if="mode === 'ffa'" class="space-y-2">
-                        <p class="text-xs text-muted-foreground">
-                            Place auto-derived from rounds. Tied rounds = tied place.
-                        </p>
+                        <p class="text-xs text-muted-foreground">Select rounds for each player. Place updates live — row order stays fixed.</p>
                         <div
-                            v-for="p in [...ffa].sort((a, b) => ffaPlacementMap[a.id] - ffaPlacementMap[b.id])"
+                            v-for="p in ffa"
                             :key="p.id"
-                            class="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-2 border-border bg-card px-3 py-2"
+                            class="flex items-center gap-3 border-2 border-border bg-card px-3 py-2"
                         >
                             <span
                                 :class="[
-                                    'inline-flex w-12 items-center justify-center border-2 px-2 py-1 text-xs font-bold uppercase tracking-wider',
+                                    'inline-flex w-10 shrink-0 items-center justify-center border-2 py-1 text-xs font-bold uppercase tracking-wider',
                                     ffaPlacementMap[p.id] === 1
                                         ? 'border-primary bg-primary text-primary-foreground'
                                         : ffaPlaceCounts[ffaPlacementMap[p.id]] > 1
@@ -399,18 +453,26 @@ const back = () => {
                                           : 'border-border text-muted-foreground',
                                 ]"
                             >
-                                {{ ffaPlaceCounts[ffaPlacementMap[p.id]] > 1 ? `T-${ffaPlacementMap[p.id]}` : ffaPlacementMap[p.id] }}
+                                {{ ffaPlaceCounts[ffaPlacementMap[p.id]] > 1 ? `T${ffaPlacementMap[p.id]}` : ffaPlacementMap[p.id] }}
                             </span>
-                            <span class="font-medium">{{ p.name }}</span>
-                            <div class="flex items-center gap-2 justify-self-end">
-                                <span class="text-xs uppercase text-muted-foreground">Rounds</span>
-                                <input
-                                    v-model.number="ffaRounds[p.id]"
-                                    type="number"
-                                    min="0"
-                                    max="4"
-                                    class="w-16 border-2 border-border bg-background px-2 py-1 text-center font-mono"
-                                />
+                            <span class="min-w-0 flex-1 truncate font-medium">{{ p.name }}</span>
+                            <div class="flex shrink-0 gap-1">
+                                <button
+                                    v-for="r in [0, 1, 2, 3, 4]"
+                                    :key="r"
+                                    type="button"
+                                    :class="[
+                                        'w-9 border-2 py-1.5 text-center font-mono text-sm font-bold transition-colors',
+                                        ffaRounds[p.id] === r
+                                            ? r === 4
+                                                ? 'border-primary bg-primary text-primary-foreground'
+                                                : 'border-foreground bg-foreground text-background'
+                                            : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground',
+                                    ]"
+                                    @click="setFfaRounds(p.id, r)"
+                                >
+                                    {{ r }}
+                                </button>
                             </div>
                         </div>
                     </div>
