@@ -1,12 +1,14 @@
 # Straftat Score Keeper
 
-Companion web app for tracking score across game-night tournaments of [Straftat](https://store.steampowered.com/app/2386720/STRAFTAT/), the fast-paced first-person arena shooter.
+Companion web app for tracking score across game-night tournaments of Straftat, the fast-paced first-person arena shooter.
+
+> **Status:** Inactive — not in active development. Kept for reference and to run locally.
 
 ## Overview
 
 ### What is Straftat Score Keeper?
 
-Straftat Score Keeper fills the gap left by the base game's lack of a built-in tournament mode. Designed for casual friend-group sessions, it lets a host log matches across **1v1**, **2v2**, and **FFA** modes throughout the night, computes a unified leaderboard that fairly weighs all three modes, and crowns a champion (with a few bonus stars) when the night wraps up. Players persist across sessions so stats build up over time.
+Straftat Score Keeper fills the gap left by [Straftat](https://store.steampowered.com/app/2386720/STRAFTAT/)'s lack of a built-in tournament mode. Designed for casual friend-group sessions, it lets a host log matches across **1v1**, **2v2**, and **FFA** modes throughout the night, computes a unified leaderboard that fairly weighs all three modes, and crowns a champion (with a few bonus stars) when the night wraps up. Players persist across sessions so stats build up over time.
 
 There are no real user accounts — a single shared passcode (set in `.env`) gates the whole app, so the host and their friends can all add matches and edit players freely.
 
@@ -24,26 +26,26 @@ There are no real user accounts — a single shared passcode (set in `.env`) gat
 
 ### Prerequisites
 
-Ensure you have the following installed:
+Ensure you have the following installed. You can verify each one by running the provided command in your terminal.
 
-1. **PHP** (8.2+) is required for the application:
+1. **PHP** (8.3+) is required for the application. Check it by running:
 
-   ```bash
-   php --version
-   ```
+    ```bash
+    php --version
+    ```
 
-2. **Composer** for managing PHP dependencies:
+2. **Composer** manages PHP dependencies. Check it by running:
 
-   ```bash
-   composer --version
-   ```
+    ```bash
+    composer --version
+    ```
 
-3. **Node** and **NPM** for managing frontend dependencies:
+3. **Node** and **NPM** manage frontend dependencies. Check them by running:
 
-   ```bash
-   node --version
-   npm --version
-   ```
+    ```bash
+    node --version
+    npm --version
+    ```
 
 > SQLite is used by default for local development — no separate database server needed. PostgreSQL is used in production (e.g. Laravel Cloud).
 
@@ -51,67 +53,67 @@ Ensure you have the following installed:
 
 1. Duplicate the example environment file and configure it with your settings:
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
 2. Set the shared passcode in `.env`:
 
-   ```
-   STRAFTAT_PASSCODE=your-passcode-here
-   ```
+    ```dotenv
+    STRAFTAT_PASSCODE=your-passcode-here
+    ```
 
 3. Install PHP and JavaScript dependencies:
 
-   ```bash
-   composer install
-   npm install
-   ```
+    ```bash
+    composer install
+    npm install
+    ```
 
 4. Generate a new application key:
 
-   ```bash
-   php artisan key:generate
-   ```
+    ```bash
+    php artisan key:generate
+    ```
 
 5. Create the SQLite database file and run migrations:
 
-   ```bash
-   touch database/database.sqlite
-   php artisan migrate
-   ```
+    ```bash
+    touch database/database.sqlite
+    php artisan migrate
+    ```
 
 6. (Optional) Seed the database with a demo tournament for local poking:
 
-   ```bash
-   php artisan db:seed
-   ```
+    ```bash
+    php artisan db:seed
+    ```
 
 7. Symlink the public storage disk so uploaded player images are servable:
 
-   ```bash
-   php artisan storage:link
-   ```
+    ```bash
+    php artisan storage:link
+    ```
 
 8. Run the dev stack (Laravel server + Vite + queue worker concurrently):
 
-   ```bash
-   composer run dev
-   ```
+    ```bash
+    composer run dev
+    ```
 
-   Then open [http://localhost:8000](http://localhost:8000) and enter your passcode.
+    Then open [http://localhost:8000](http://localhost:8000) and enter your passcode.
 
 ## Tech Stack
 
-- **Backend**: Laravel 13, PHP 8.4, SQLite (local) / PostgreSQL (production)
-- **Frontend**: Inertia.js 2, Vue 3 (Composition API + TypeScript), Tailwind CSS 4, shadcn-vue
+- **Backend**: Laravel 13, PHP 8.4 (`composer.json` allows 8.3+), SQLite (local) / PostgreSQL (production)
+- **Frontend**: Inertia.js 3, Vue 3 (Composition API + TypeScript), Tailwind CSS 4, shadcn-vue
 - **Auth**: Custom passcode middleware (no real users)
 - **Storage**: Storage facade — `public` disk locally, `s3` (Laravel Cloud) in production via env swap
 - **Testing**: Pest
 
 ## Project Structure
 
-```
+```text
 app/
 ├── Actions/                    # Pure-ish business logic
 │   ├── ComputeTournamentLeaderboard.php
@@ -164,6 +166,14 @@ database/
 
 Tied FFA placements share their (higher) place's MP — e.g. two players tied for 2nd in a 4-player FFA both get 15 MP.
 
+## Deployment
+
+The app targets **Laravel Cloud** for production:
+
+1. Set `FILESYSTEM_DISK=s3` and the standard `AWS_*` env vars on the deploy target. The `Player::image_url` accessor uses `Storage::disk(config('filesystems.default'))` so no code change is needed.
+2. Set `DB_CONNECTION=pgsql` and Laravel Cloud's database env vars.
+3. Set a strong `STRAFTAT_PASSCODE`.
+
 ## Testing
 
 ```bash
@@ -177,10 +187,10 @@ Pest test suite covers:
 - FFA placement derivation (no ties / tied middle places)
 - `ComputeTournamentLeaderboard` math per mode, including FFA tie scoring
 
-## Deployment
+## Contributing
 
-The app targets **Laravel Cloud** for production:
+This project isn't in active development, so I'm not reviewing issues or pull requests. You're welcome to fork it and take it in your own direction under the license below.
 
-1. Set `FILESYSTEM_DISK=s3` and the standard `AWS_*` env vars on the deploy target. The `Player::image_url` accessor uses `Storage::disk(config('filesystems.default'))` so no code change is needed.
-2. Set `DB_CONNECTION=pgsql` and Laravel Cloud's database env vars.
-3. Set a strong `STRAFTAT_PASSCODE`.
+## License
+
+Released under the [MIT License](LICENSE).
